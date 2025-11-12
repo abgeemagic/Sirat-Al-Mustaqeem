@@ -1,0 +1,16 @@
+# PDF to JSON Converter Requirements
+# Install these packages using: pip install -r requirements.txt
+
+# Basic PDF processing
+PyPDF2==3.0.1
+
+# Advanced PDF processing with table extraction
+pdfplumber==0.10.3
+
+# Data manipulation for table processing
+pandas>=1.5.0
+
+# Additional dependencies for advanced features
+tabula-py>=2.7.0  # For complex table extraction
+camelot-py>=0.11.0  # Alternative table extraction
+Pillow>=9.0.0  # Image processing

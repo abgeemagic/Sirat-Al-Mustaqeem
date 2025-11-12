@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "958498435991",
+    "project_id": "final-9979b",
+    "storage_bucket": "final-9979b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958498435991:android:20bb33d3acab79afb20ad2",
+        "android_client_info": {
+          "package_name": "com.example.molvi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "958498435991-3ieerpkqklemp37mg6o7iv3g5apm65ib.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.molvi",
+            "certificate_hash": "8489ba1cd8e0fa08cf92a6e492219f904fc0b0f9"
+          }
+        },
+        {
+          "client_id": "958498435991-ghb7avdc54spsgagmu8emvoqk485ab9s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3Oi5WgSaXJZeJRtLUX2ksmIIc70z_bLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "958498435991-ghb7avdc54spsgagmu8emvoqk485ab9s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "958498435991-8rj6jvnilujpdoa5vcuvbqui08sg1e0t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.molvi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
