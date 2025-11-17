@@ -1,0 +1,1 @@
+I have successfully added the CODE_OF_CONDUCT.md file to the repository. This file uses the standard "Contributor Covenant" template provided by GitHub to outline the expectations for all project participants.
