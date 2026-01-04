@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+
 ThemeData lighttheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF1B5E20), 
+    primary: Color(0xFF1B5E20),
     onPrimary: Colors.white,
-    primaryContainer: Color(0xFFE8F5E8), 
+    primaryContainer: Color(0xFFE8F5E8),
     onPrimaryContainer: Color(0xFF1B5E20),
-    secondary: Color(0xFF2E7D32), 
+    secondary: Color(0xFF2E7D32),
     onSecondary: Colors.white,
     secondaryContainer: Color(0xFFF1F8E9),
     onSecondaryContainer: Color(0xFF1B5E20),
-    tertiary: Color(0xFF4CAF50), 
+    tertiary: Color(0xFF4CAF50),
     onTertiary: Colors.white,
     tertiaryContainer: Color(0xFFE8F5E8),
     onTertiaryContainer: Color(0xFF1B5E20),
@@ -21,7 +23,7 @@ ThemeData lighttheme = ThemeData(
     onError: Colors.white,
     errorContainer: Color(0xFFFFEBEE),
     onErrorContainer: Color(0xFFB71C1C),
-    surface: Color(0xFFFAFAFA), 
+    surface: Color(0xFFFAFAFA),
     onSurface: Color(0xFF1A1A1A),
     surfaceContainerHighest: Color(0xFFF0F0F0),
     onSurfaceVariant: Color(0xFF616161),
@@ -145,20 +147,21 @@ ThemeData lighttheme = ThemeData(
     surfaceTintColor: Color(0xFFFAFAFA),
   ),
 );
+
 ThemeData darktheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: const ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFF66BB6A), 
+    primary: Color(0xFF66BB6A),
     onPrimary: Color(0xFF1B5E20),
-    primaryContainer: Color(0xFF2E7D32), 
+    primaryContainer: Color(0xFF2E7D32),
     onPrimaryContainer: Color(0xFFE8F5E8),
-    secondary: Color(0xFF4CAF50), 
+    secondary: Color(0xFF4CAF50),
     onSecondary: Color(0xFF1B5E20),
     secondaryContainer: Color(0xFF388E3C),
     onSecondaryContainer: Color(0xFFF1F8E9),
-    tertiary: Color(0xFF81C784), 
+    tertiary: Color(0xFF81C784),
     onTertiary: Color(0xFF1B5E20),
     tertiaryContainer: Color(0xFF2E7D32),
     onTertiaryContainer: Color(0xFFE8F5E8),
@@ -166,7 +169,7 @@ ThemeData darktheme = ThemeData(
     onError: Color(0xFF1A1A1A),
     errorContainer: Color(0xFFD32F2F),
     onErrorContainer: Color(0xFFFFEBEE),
-    surface: Color(0xFF121212), 
+    surface: Color(0xFF121212),
     onSurface: Color(0xFFE0E0E0),
     surfaceContainerHighest: Color(0xFF1E1E1E),
     onSurfaceVariant: Color(0xFFBDBDBD),

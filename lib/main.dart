@@ -13,6 +13,8 @@ import 'package:molvi/Firebase/auth_service.dart';
 import 'Firebase/firebase_options.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
+// ... (Keep your main function and MyApp and AuthWrapper exactly as they are) ...
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -50,10 +52,7 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+              body: Center(child: CircularProgressIndicator()));
         }
         if (snapshot.hasData) {
           return const MainNavigator();
@@ -64,6 +63,9 @@ class AuthWrapper extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------
+// IMPROVED LOGIN PAGE
+// ---------------------------------------------------------
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -80,61 +82,81 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.08),
-              Theme.of(context).colorScheme.surface,
-            ],
-          ),
-        ),
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/icon/logo.png',
-                  width: 130,
-                  height: 130,
+                // Logo with a subtle glow effect
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.primary.withOpacity(0.2),
+                        blurRadius: 30,
+                        spreadRadius: 10,
+                      )
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/icon/logo.png',
+                    width: 150,
+                    height: 150,
+                  ),
                 ),
-                const SizedBox(height: 24),
-                Icon(
-                  Icons.account_circle_outlined,
-                  size: 50,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 40),
                 Text(
-                  'Sign in for a personalized experience',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                  'Welcome Back',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
                       ),
-                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
-                  'Sync your settings, bookmarks and preferences across all devices',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                  'Sync your settings, bookmarks, and preferences across all devices.',
                   textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.5,
+                      ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () => _handleAuthAction(context),
-                  icon: const Icon(Icons.login_rounded),
-                  label: const Text('Sign in with Google'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                const SizedBox(height: 48),
+                // Custom Styled Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => _handleAuthAction(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primaryContainer,
+                      foregroundColor: colorScheme.onPrimaryContainer,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.login_rounded),
+                        SizedBox(width: 12),
+                        Text(
+                          'Sign in with Google',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -146,6 +168,9 @@ class LoginPage extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------
+// IMPROVED MAIN NAVIGATOR
+// ---------------------------------------------------------
 class MainNavigator extends StatefulWidget {
   const MainNavigator({super.key});
   @override
@@ -153,23 +178,25 @@ class MainNavigator extends StatefulWidget {
 }
 
 class _MainNavigatorState extends State<MainNavigator> {
-  final PageController _pageController =
-      PageController(initialPage: 2); // Start with Home page
-  int _currentIndex = 2; // Start with Home page (index 2)
+  final PageController _pageController = PageController(initialPage: 2);
+  int _currentIndex = 2;
+
   final List<Widget> _pages = [
     const HadithPage(),
     const Quranpage(),
     const Home(),
     const Aipage(),
-    const ReadingModePage(), // Now launches immersive reading mode
+    const ReadingModePage(),
   ];
+
   final List<String> _pageTitles = [
     'Hadith Collection',
     'Holy Quran',
-    'Home',
+    'Home', // We won't show this title on the Home screen custom header
     'AI Islamic Guide',
     'Reading Mode',
   ];
+
   final List<IconData> _pageIcons = [
     Icons.book_rounded,
     Icons.menu_book_rounded,
@@ -185,9 +212,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   }
 
   void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   void _navigateToPage(int index) {
@@ -196,68 +221,46 @@ class _MainNavigatorState extends State<MainNavigator> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text(_pageTitles[_currentIndex]),
-          centerTitle: true,
-          elevation: 0,
-          leading: _currentIndex == 2 // Home page is now at index 2
-              ? IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.settings_rounded),
-                  tooltip: 'Settings',
-                )
-              : null,
-        ),
+        // Only show AppBar for pages OTHER than Home (Index 2)
+        // // Home has its own custom header now.
+        // appBar: _currentIndex == 2
+        //     ? null
+        //     : AppBar(
+        //         title: Text(_pageTitles[_currentIndex]),
+        //         centerTitle: true,
+        //         elevation: 0,
+        //       ),
         body: PageView(
           controller: _pageController,
           onPageChanged: _onPageChanged,
+          physics:
+              const NeverScrollableScrollPhysics(), // Prevent swiping to avoid UI glitches
           children: _pages,
         ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey.withOpacity(0.3)
-                    : Colors.transparent,
-                width: 0.5,
-              ),
+        bottomNavigationBar: ConvexAppBar(
+          key: ValueKey(_currentIndex),
+          style: TabStyle.react,
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          activeColor: Theme.of(context).colorScheme.primary,
+          color: isDark ? Colors.grey : Colors.grey.shade600,
+          elevation: 2,
+          items: List.generate(
+            _pages.length,
+            (index) => TabItem(
+              icon: _pageIcons[index],
+              title: _getShortLabel(index),
             ),
           ),
-          child: ConvexAppBar(
-            key: ValueKey(_currentIndex),
-            style: TabStyle.react,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.9)
-                : Theme.of(context).colorScheme.surface,
-            activeColor: Colors.greenAccent,
-            color: Theme.of(context).colorScheme.onSurface,
-            items: List.generate(
-                _pages.length,
-                (index) => TabItem(
-                      icon: _pageIcons[index],
-                      title: _getShortLabel(index),
-                    )),
-            initialActiveIndex: _currentIndex,
-            onTap: (int index) {
-              _navigateToPage(index);
-            },
-          ),
+          initialActiveIndex: _currentIndex,
+          onTap: _navigateToPage,
         ));
   }
 
@@ -279,6 +282,9 @@ class _MainNavigatorState extends State<MainNavigator> {
   }
 }
 
+// ---------------------------------------------------------
+// RE-DESIGNED HOME SCREEN
+// ---------------------------------------------------------
 class Home extends StatefulWidget {
   const Home({super.key});
   @override
@@ -290,9 +296,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 10), () {
-      if (mounted) {
-        FontSettings.addListener(_onFontSettingsChanged);
-      }
+      if (mounted) FontSettings.addListener(_onFontSettingsChanged);
     });
   }
 
@@ -303,9 +307,7 @@ class _HomeState extends State<Home> {
   }
 
   void _onFontSettingsChanged() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _handleAuthAction(BuildContext context) async {
@@ -323,211 +325,205 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              children: [
-                Image.asset(
-                  'assets/icon/logo.png',
-                  width: 130,
-                  height: 130,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your companion for Islamic guidance',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.swipe_right_rounded,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'Swipe to navigate between pages',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Card(
-            elevation: 2,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Header (User Info + Settings)
+              _buildHeader(context),
+
+              const SizedBox(height: 24),
+
+              // 2. Main Banner (Logo + Slogan)
+              _buildMainBanner(context),
+
+              const SizedBox(height: 24),
+
+              // 3. Quick Actions Grid
+              Text(
+                'Quick Actions',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+
+              // Using a Row + Column approach for better alignment than flexible
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundImage: AuthService.userPhotoURL != null
-                            ? NetworkImage(AuthService.userPhotoURL!)
-                            : null,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        child: AuthService.userPhotoURL == null
-                            ? Icon(
-                                Icons.person,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 30,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Welcome back!',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              AuthService.userDisplayName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              AuthService.userEmail,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => _handleAuthAction(context),
-                        icon: const Icon(Icons.logout_rounded),
-                        tooltip: 'Sign Out',
-                      ),
-                    ],
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      icon: Icons.refresh_rounded,
+                      title: 'Random Verse',
+                      color: Colors.orangeAccent,
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RandomVersePage())),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      icon: Icons.auto_stories_rounded,
+                      title: 'Random Hadith',
+                      color: Colors.blueAccent,
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RandomHadithPage())),
+                    ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 16),
+              // Full width card
+              _buildActionCard(
+                context,
+                icon: Icons.schedule_rounded,
+                title: 'Prayer Times',
+                subtitle: 'Check accurate Salah times',
+                color: Colors.greenAccent,
+                isHorizontal: true,
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const SalahPage())),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'As-salamu alaykum,',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                AuthService.userDisplayName ?? 'Believer',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        // AVATAR WITH SETTINGS BADGE
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
+            );
+          },
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              // 1. The Avatar Image
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundImage: AuthService.userPhotoURL != null
+                      ? NetworkImage(AuthService.userPhotoURL!)
+                      : null,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
+                  child: AuthService.userPhotoURL == null
+                      ? Icon(Icons.person,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                ),
+              ),
+              // 2. The Settings Icon Badge
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.surface,
+                    width: 2,
+                  ),
+                ),
+                child: Icon(
+                  Icons.settings_rounded,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildMainBanner(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/icon/logo.png',
+            width: 70,
+            height: 70,
+          ),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Quick Actions',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
+                  'Sirat Al Mustaqeem',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildQuickActionCard(
-                        context,
-                        icon: Icons.refresh_rounded,
-                        title: 'Random Verse',
-                        subtitle: 'Get inspired',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RandomVersePage(),
-                            ),
-                          );
-                        },
+                const SizedBox(height: 6),
+                Text(
+                  'Your daily companion for Islamic guidance & wisdom.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildQuickActionCard(
-                        context,
-                        icon: Icons.auto_stories_rounded,
-                        title: 'Random Hadith',
-                        subtitle: 'Learn wisdom',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RandomHadithPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                _buildQuickActionCard(
-                  context,
-                  icon: Icons.schedule_rounded,
-                  title: 'Prayer Times',
-                  subtitle: 'Never miss a prayer',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SalahPage(),
-                      ),
-                    );
-                  },
                 ),
               ],
             ),
@@ -537,57 +533,106 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildQuickActionCard(
+  Widget _buildActionCard(
     BuildContext context, {
     required IconData icon,
     required String title,
-    required String subtitle,
+    String? subtitle,
+    required Color color,
     required VoidCallback onTap,
+    bool isHorizontal = false,
   }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primaryContainer
-                      .withOpacity(0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                textAlign: TextAlign.center,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.colorScheme
+                .surfaceContainer, // Better than standard Card color
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
+          child: isHorizontal
+              ? Row(
+                  children: [
+                    _buildIconBox(icon, color, isDark),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const Spacer(),
+                    Icon(Icons.arrow_forward_ios_rounded,
+                        size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildIconBox(icon, color, isDark),
+                    const SizedBox(height: 16),
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tap to view',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildIconBox(IconData icon, Color color, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        color: isDark ? color.withOpacity(0.9) : color,
+        size: 24,
       ),
     );
   }

@@ -208,7 +208,7 @@ class _SalahPageState extends State<SalahPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'أوقات الصلاة',
+          'Prayer Timings',
           style: GoogleFonts.amiriQuran(
             fontSize: FontSettings.arabicFontSize * 1.3,
             fontWeight: FontWeight.bold,

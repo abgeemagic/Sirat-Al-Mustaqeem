@@ -70,7 +70,22 @@ class _RandomVersePageState extends State<RandomVersePage> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 16),
+                const Text(
+                  'Loading random verse...',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'UthmaniHafs',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            )
           : currentVerse == null
               ? Center(
                   child: Column(

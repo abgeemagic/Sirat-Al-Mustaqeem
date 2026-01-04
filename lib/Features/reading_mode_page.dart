@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:molvi/Features/reading_progress_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:molvi/Pages/settings.dart'; // Added to use FontSettings
 
 class ReadingModePage extends StatefulWidget {
   const ReadingModePage({super.key});
@@ -18,16 +19,23 @@ class _ReadingModePageState extends State<ReadingModePage> {
   @override
   void initState() {
     super.initState();
+    // Listen to font changes to redraw if user changes settings
+    FontSettings.addListener(_onFontSettingsChanged);
     _loadProgress();
+  }
+
+  @override
+  void dispose() {
+    FontSettings.removeListener(_onFontSettingsChanged);
+    super.dispose();
+  }
+
+  void _onFontSettingsChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadProgress() async {
     final progress = await ReadingProgressService.getProgress();
-    if (mounted) {
-      setState(() {
-        // update state
-      });
-    }
     if (mounted) {
       setState(() {
         _currentSurah = progress['surah'] ?? 1;
@@ -68,50 +76,76 @@ class _ReadingModePageState extends State<ReadingModePage> {
     });
   }
 
+  // Helper to convert English numbers to Arabic
+  String toArabicNumbers(int number) {
+    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+    String result = number.toString();
+    for (int i = 0; i < english.length; i++) {
+      result = result.replaceAll(english[i], arabic[i]);
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: colorScheme.surface,
+        body: Center(
+            child: CircularProgressIndicator(color: colorScheme.primary)),
       );
     }
-    final arabic =
-        quran.getVerse(_currentSurah, _currentAyah, verseEndSymbol: true);
+
+    final arabicText =
+        quran.getVerse(_currentSurah, _currentAyah, verseEndSymbol: false);
     final translation = quran.getVerseTranslation(_currentSurah, _currentAyah);
     final surahName = quran.getSurahName(_currentSurah);
-    // Calculate total verses read so far by summing all ayahs in previous surahs and adding current ayah
+    final surahNameArabic = quran.getSurahNameArabic(_currentSurah);
+
+    // Calculate Progress
     int versesRead = 0;
     for (int i = 1; i < _currentSurah; i++) {
       versesRead += quran.getVerseCount(i);
     }
     versesRead += _currentAyah;
     final progressPercent = versesRead / 6236;
+
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: colorScheme.surface,
+      // Transparent AppBar for immersive feel
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
         centerTitle: true,
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .primaryContainer
-                .withOpacity(0.15),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            '$surahName ($_currentSurah) : $_currentAyah',
-            style: GoogleFonts.inter(
-                fontSize: 20,
+        title: Column(
+          children: [
+            Text(
+              '$surahName ($surahNameArabic)',
+              style: GoogleFonts.inter(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary),
-          ),
+                color: colorScheme.onSurface,
+              ),
+            ),
+            Text(
+              'Juz ${quran.getJuzNumber(_currentSurah, _currentAyah)} • Ayah $_currentAyah',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Restart from beginning',
+            icon: Icon(Icons.refresh_rounded,
+                color: colorScheme.onSurfaceVariant),
+            tooltip: 'Restart from Al-Fatiha',
             onPressed: () async {
               setState(() {
                 _currentSurah = 1;
@@ -125,91 +159,176 @@ class _ReadingModePageState extends State<ReadingModePage> {
       ),
       body: GestureDetector(
         onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
-            _nextVerse();
-          } else if (details.primaryVelocity != null &&
-              details.primaryVelocity! > 0) {
-            _prevVerse();
+          // Swipe Left/Right to navigate
+          if (details.primaryVelocity != null) {
+            if (details.primaryVelocity! < 0) {
+              _nextVerse(); // Swipe Left -> Next
+            } else if (details.primaryVelocity! > 0) {
+              _prevVerse(); // Swipe Right -> Prev
+            }
           }
         },
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.08),
-                Theme.of(context).colorScheme.surface,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 24),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          arabic,
-                          style: TextStyle(
-                              fontFamily: 'UthmaniHafs',
-                              fontSize: 36,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.center,
+        child: Column(
+          children: [
+            // --- MAIN READING CARD ---
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainer, // Modern card color
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                        const SizedBox(height: 24),
+                      ],
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white10
+                            : Colors.black.withOpacity(0.05),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 1. ARABIC TEXT
+                        Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: TextStyle(
+                                fontFamily:
+                                    'UthmaniHafs', // Matches other pages
+                                fontSize: FontSettings.arabicFontSize *
+                                    2.0, // Large for reading mode
+                                height: 1.6,
+                                color: colorScheme.onSurface,
+                              ),
+                              children: [
+                                TextSpan(text: arabicText),
+                                // End of Verse Symbol
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 8.0, left: 4.0),
+                                    child: SizedBox(
+                                      width: FontSettings.arabicFontSize *
+                                          2.2, // Scale with font
+                                      height: FontSettings.arabicFontSize * 2.2,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          // Circle Icon
+                                          Icon(
+                                            Icons
+                                                .circle_outlined, // Simplified circle or custom glyph
+                                            size: FontSettings.arabicFontSize *
+                                                2.2,
+                                            color: colorScheme.primary
+                                                .withOpacity(0.4),
+                                          ),
+                                          // Verse Number
+                                          Text(
+                                            toArabicNumbers(_currentAyah),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontFamily: 'UthmaniHafs',
+                                              fontSize:
+                                                  FontSettings.arabicFontSize *
+                                                      0.9,
+                                              fontWeight: FontWeight.bold,
+                                              color: colorScheme.primary,
+                                              height: 1.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+                        Divider(
+                            color: colorScheme.outlineVariant.withOpacity(0.5)),
+                        const SizedBox(height: 30),
+
+                        // 2. TRANSLATION
                         Text(
                           translation,
-                          style: GoogleFonts.inter(
-                              fontSize: 20,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
                           textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: FontSettings.englishFontSize * 1.2,
+                            height: 1.6,
+                            fontWeight: FontWeight.w400,
+                            color: colorScheme.onSurface.withOpacity(0.9),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  child: ClipRRect(
+              ),
+            ),
+
+            // --- BOTTOM CONTROLS ---
+            Container(
+              padding: const EdgeInsets.all(24),
+              color: colorScheme.surface,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Progress',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        '${(progressPercent * 100).toStringAsFixed(1)}%',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: progressPercent,
-                      minHeight: 10,
-                      backgroundColor: Colors.grey[300],
-                      color: Theme.of(context).colorScheme.primary,
+                      minHeight: 12,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      color: colorScheme.primary,
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Progress: $versesRead / 6236 verses',
-                  style: GoogleFonts.inter(
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Swipe left/right to navigate',
-                  style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Swipe left or right to navigate',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
