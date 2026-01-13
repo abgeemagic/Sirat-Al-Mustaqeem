@@ -12,12 +12,12 @@ import 'package:molvi/Features/reading_mode_page.dart';
 import 'package:molvi/Firebase/auth_service.dart';
 import 'Firebase/firebase_options.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-
-// ... (Keep your main function and MyApp and AuthWrapper exactly as they are) ...
+import 'package:molvi/Features/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService.initialize();
   runApp(const MyApp());
 }
 

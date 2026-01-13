@@ -5,7 +5,6 @@ import 'package:quran/quran.dart' as quran;
 import 'package:molvi/Pages/settings.dart';
 import 'package:molvi/Features/bookmark_service.dart';
 
-// Global variables (kept as requested)
 List<dynamic> quranList = [];
 int currentAyahIndex = 0;
 late int surahnum;

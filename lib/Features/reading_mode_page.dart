@@ -16,6 +16,86 @@ class _ReadingModePageState extends State<ReadingModePage> {
   int _totalAyat = 1;
   bool _loading = true;
 
+  Future<void> _showRestartConfirmation(BuildContext parentContext) async {
+    final colorScheme = Theme.of(parentContext).colorScheme;
+
+    return showDialog<void>(
+      context: parentContext,
+      builder: (BuildContext dialogContext) {
+        // 1. Rename this to dialogContext
+        return AlertDialog(
+          backgroundColor: colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Start Over?',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          content: Text(
+            'This will reset your reading progress back to the beginning (Al-Fatiha).',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Use dialogContext to close
+              },
+            ),
+            TextButton(
+              child: Text(
+                'Restart',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.primary,
+                ),
+              ),
+              onPressed: () async {
+                Navigator.of(dialogContext).pop(); // Use dialogContext to close
+
+                // Logic
+                setState(() {
+                  _currentSurah = 1;
+                  _currentAyah = 1;
+                  _totalAyat = quran.getVerseCount(1);
+                });
+                await _saveProgress();
+
+                // Check if the PARENT page is still mounted
+                if (mounted) {
+                  // Use parentContext (which is still alive) for the SnackBar
+                  ScaffoldMessenger.of(parentContext).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Progress reset to start',
+                        style: GoogleFonts.inter(color: colorScheme.onPrimary),
+                      ),
+                      backgroundColor: colorScheme.primary,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -146,14 +226,7 @@ class _ReadingModePageState extends State<ReadingModePage> {
             icon: Icon(Icons.refresh_rounded,
                 color: colorScheme.onSurfaceVariant),
             tooltip: 'Restart from Al-Fatiha',
-            onPressed: () async {
-              setState(() {
-                _currentSurah = 1;
-                _currentAyah = 1;
-                _totalAyat = quran.getVerseCount(1);
-              });
-              await _saveProgress();
-            },
+            onPressed: () => _showRestartConfirmation(context),
           ),
         ],
       ),

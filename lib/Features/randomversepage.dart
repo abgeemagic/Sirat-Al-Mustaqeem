@@ -12,6 +12,7 @@ class RandomVersePage extends StatefulWidget {
 class _RandomVersePageState extends State<RandomVersePage> {
   Ayah? currentVerse;
   bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -26,16 +27,12 @@ class _RandomVersePageState extends State<RandomVersePage> {
   }
 
   void _onFontSettingsChanged() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   void loadRandomVerse() async {
     if (!mounted) return;
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
     try {
       final verse = await getRandomVerse();
       if (mounted) {
@@ -46,9 +43,7 @@ class _RandomVersePageState extends State<RandomVersePage> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
+        setState(() => isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading verse: $e')),
         );
@@ -58,253 +53,131 @@ class _RandomVersePageState extends State<RandomVersePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Random Verse'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('Random Verse',
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
         actions: [
           IconButton(
-            onPressed: loadRandomVerse,
-            icon: const Icon(Icons.refresh),
-          ),
+              onPressed: loadRandomVerse,
+              icon: const Icon(Icons.refresh_rounded)),
         ],
       ),
       body: isLoading
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Center(child: CircularProgressIndicator()),
-                const SizedBox(height: 16),
-                const Text(
-                  'Loading random verse...',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'UthmaniHafs',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            )
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : currentVerse == null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline,
-                          size: 64, color: Colors.red),
+                      Icon(Icons.error_outline_rounded,
+                          size: 60, color: colorScheme.error),
                       const SizedBox(height: 16),
-                      const Text('No verse available'),
+                      Text('No verse available',
+                          style:
+                              GoogleFonts.inter(color: colorScheme.onSurface)),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: loadRandomVerse,
-                        child: const Text('Try Again'),
-                      ),
+                          onPressed: loadRandomVerse,
+                          child: const Text('Try Again')),
                     ],
                   ),
                 )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 20,
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      // --- VERSE CARD ---
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
-                            margin: const EdgeInsets.only(bottom: 24),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(25),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.menu_book,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  '${currentVerse!.surahName} - ${currentVerse!.surahNumber}',
-                                  style: TextStyle(
-                                    fontFamily: 'UthmaniHafs',
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    fontSize: FontSettings.arabicFontSize * 1.1,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary
-                                        .withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    '${currentVerse!.ayahNumber}',
-                                    style: TextStyle(
-                                      fontFamily: 'UthmaniHafs',
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          ],
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white10
+                                : Colors.black.withOpacity(0.05),
                           ),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              currentVerse!.text,
-                              style: TextStyle(
-                                fontFamily: 'UthmaniHafs',
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontSize: FontSettings.arabicFontSize * 1.6,
-                                fontWeight: FontWeight.w500,
-                                height: 1.8,
-                              ),
-                              textAlign: TextAlign.center,
-                              textDirection: TextDirection.rtl,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          if (currentVerse!.translation != null)
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Header: Surah Name
                             Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(18),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                                    .withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondary
-                                      .withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.translate,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        "Translation",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    currentVerse!.translation!,
-                                    style: GoogleFonts.inter(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      fontSize:
-                                          FontSettings.englishFontSize * 1.1,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.5,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (currentVerse!.translation == null)
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(12),
+                                color: colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                "Translation loading...",
+                                '${currentVerse!.surahName} • Ayah ${currentVerse!.ayahNumber}',
                                 style: GoogleFonts.inter(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.7),
-                                  fontSize: 16,
-                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimaryContainer,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
-                        ],
+                            const SizedBox(height: 30),
+                            Text(
+                              currentVerse!.text,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'UthmaniHafs',
+                                fontSize: FontSettings.arabicFontSize * 1.8,
+                                height: 1.6,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+
+                            const SizedBox(height: 30),
+                            Divider(
+                                color: colorScheme.outlineVariant
+                                    .withOpacity(0.5)),
+                            const SizedBox(height: 30),
+
+                            // TRANSLATION
+                            Text(
+                              currentVerse!.translation ??
+                                  "Translation loading...",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: FontSettings.englishFontSize * 1.2,
+                                height: 1.6,
+                                fontWeight: FontWeight.w400,
+                                color: colorScheme.onSurface.withOpacity(0.9),
+                                fontStyle: currentVerse!.translation == null
+                                    ? FontStyle.italic
+                                    : FontStyle.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: loadRandomVerse,
-        icon: const Icon(Icons.refresh),
-        label: const Text('New Random'),
+        icon: const Icon(Icons.shuffle_rounded),
+        label: const Text('New Verse'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
     );
   }

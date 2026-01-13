@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:molvi/Firebase/user_preferences_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:molvi/Firebase/auth_service.dart'; // Ensure this import exists
+import 'package:molvi/Firebase/auth_service.dart';
+import 'package:molvi/Features/notification_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -18,12 +19,45 @@ class _SettingsPageState extends State<SettingsPage> {
   bool isLoading = true;
   ThemeMode currentThemeMode = ThemeMode.system;
   String _appVersion = '';
+  bool notificationsEnabled = false;
 
   @override
   void initState() {
     super.initState();
     _loadFontSettings();
     _loadAppVersion();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // ... existing font loading ...
+      notificationsEnabled = prefs.getBool('notifications_enabled') ?? false;
+    });
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (value) {
+      // Request permission if turning ON
+      bool granted = await NotificationService.requestPermissions();
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Notification permission denied')));
+        }
+        return;
+      }
+    } else {
+      // Cancel all if turning OFF
+      await NotificationService.cancelAllNotifications();
+    }
+
+    setState(() {
+      notificationsEnabled = value;
+    });
+    await prefs.setBool('notifications_enabled', value);
   }
 
   Future<void> _loadAppVersion() async {
@@ -241,6 +275,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
                   const SizedBox(height: 32),
 
+                  _buildSettingsTile(
+                    context,
+                    icon: Icons.notifications_active_rounded,
+                    title: 'Prayer Notifications',
+                    trailing: Switch(
+                      value: notificationsEnabled,
+                      onChanged: _toggleNotifications,
+                    ),
+                  ),
+
                   // --- SECTION: ACCOUNT ---
                   _buildSectionHeader(context, 'Account'),
                   Container(
@@ -335,6 +379,45 @@ class _SettingsPageState extends State<SettingsPage> {
           letterSpacing: 1.2,
           color: Theme.of(context).colorScheme.primary,
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Widget trailing,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+        ),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorScheme.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: colorScheme.primary, size: 20),
+        ),
+        title: Text(
+          title,
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        trailing: trailing,
       ),
     );
   }
