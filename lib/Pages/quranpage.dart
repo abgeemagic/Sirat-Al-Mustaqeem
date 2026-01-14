@@ -442,7 +442,7 @@ class _ArabicQuranState extends State<ArabicQuran> {
                         MaterialPageRoute(
                           builder: (context) => which == 2
                               ? const TranslatedQuran()
-                              : const thetextofquran(),
+                              : const Thetextofquran(),
                         ),
                       );
                     },
@@ -523,13 +523,13 @@ class _ArabicQuranState extends State<ArabicQuran> {
 // ARABIC ONLY READING VIEW
 // ---------------------------------------------------------------------------
 
-class thetextofquran extends StatefulWidget {
-  const thetextofquran({super.key});
+class Thetextofquran extends StatefulWidget {
+  const Thetextofquran({super.key});
   @override
-  State<thetextofquran> createState() => _thetextofquranState();
+  State<Thetextofquran> createState() => _ThetextofquranState();
 }
 
-class _thetextofquranState extends State<thetextofquran> {
+class _ThetextofquranState extends State<Thetextofquran> {
   // Logic from original code
   void filterAyahs(String query) {
     setState(() {
@@ -574,6 +574,7 @@ class _thetextofquranState extends State<thetextofquran> {
   List<int> filteredAyahs = [];
   bool isSearching = false;
   final ScrollController scrollController = ScrollController();
+  final Map<int, bool> _optimisticBookmarks = {};
 
   @override
   void initState() {
@@ -595,22 +596,51 @@ class _thetextofquranState extends State<thetextofquran> {
 
   Future<void> _toggleBookmark(int ayahNumber) async {
     final isCurrentlyBookmarked =
-        BookmarkService.isBookmarked(surahnum, ayahNumber);
-    if (isCurrentlyBookmarked) {
-      await BookmarkService.removeBookmark(surahnum, ayahNumber);
-    } else {
-      final bookmark = Bookmark(
-        surahNumber: surahnum,
-        verseNumber: ayahNumber,
-        surahName: surahname,
-        surahNameArabic: quran.getSurahNameArabic(surahnum),
-        verseText: quran.getVerse(surahnum, ayahNumber),
-        translationText: '',
-        createdAt: DateTime.now(),
-      );
-      await BookmarkService.addBookmark(bookmark);
+        _optimisticBookmarks[ayahNumber] ?? BookmarkService.isBookmarked(surahnum, ayahNumber);
+    final optimisticState = !isCurrentlyBookmarked;
+
+    setState(() {
+      _optimisticBookmarks[ayahNumber] = optimisticState;
+    });
+
+    try {
+      bool success;
+      if (isCurrentlyBookmarked) {
+        success = await BookmarkService.removeBookmark(surahnum, ayahNumber);
+      } else {
+        final bookmark = Bookmark(
+          surahNumber: surahnum,
+          verseNumber: ayahNumber,
+          surahName: surahname,
+          surahNameArabic: quran.getSurahNameArabic(surahnum),
+          verseText: quran.getVerse(surahnum, ayahNumber),
+          translationText: '',
+          createdAt: DateTime.now(),
+        );
+        success = await BookmarkService.addBookmark(bookmark);
+      }
+
+      if (!success) {
+        throw Exception('Bookmark operation failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bookmark failed. Please try again.')),
+        );
+        // Revert UI by removing optimistic state
+        setState(() {
+          _optimisticBookmarks.remove(ayahNumber);
+        });
+      }
+    } finally {
+      if (mounted && _optimisticBookmarks.containsKey(ayahNumber)) {
+        // Clean up optimistic state after operation completes
+        setState(() {
+          _optimisticBookmarks.remove(ayahNumber);
+        });
+      }
     }
-    if (mounted) setState(() {}); // Refresh UI
   }
 
   @override
@@ -630,7 +660,8 @@ class _thetextofquranState extends State<thetextofquran> {
       },
       itemBuilder: (context, index) {
         int ayahNumber = filteredAyahs[index];
-        bool isBookmarked = BookmarkService.isBookmarked(surahnum, ayahNumber);
+        bool isBookmarked =
+            _optimisticBookmarks[ayahNumber] ?? BookmarkService.isBookmarked(surahnum, ayahNumber);
 
         return _buildAyahCard(
           context,
@@ -660,6 +691,7 @@ class _TranslatedQuranState extends State<TranslatedQuran> {
   List<int> filteredAyahs = [];
   bool isSearching = false;
   final ScrollController scrollController = ScrollController();
+  final Map<int, bool> _optimisticBookmarks = {};
 
   @override
   void initState() {
@@ -725,22 +757,51 @@ class _TranslatedQuranState extends State<TranslatedQuran> {
 
   Future<void> _toggleBookmark(int ayahNumber) async {
     final isCurrentlyBookmarked =
-        BookmarkService.isBookmarked(surahnum, ayahNumber);
-    if (isCurrentlyBookmarked) {
-      await BookmarkService.removeBookmark(surahnum, ayahNumber);
-    } else {
-      final bookmark = Bookmark(
-        surahNumber: surahnum,
-        verseNumber: ayahNumber,
-        surahName: surahname,
-        surahNameArabic: quran.getSurahNameArabic(surahnum),
-        verseText: quran.getVerse(surahnum, ayahNumber),
-        translationText: quran.getVerseTranslation(surahnum, ayahNumber),
-        createdAt: DateTime.now(),
-      );
-      await BookmarkService.addBookmark(bookmark);
+        _optimisticBookmarks[ayahNumber] ?? BookmarkService.isBookmarked(surahnum, ayahNumber);
+    final optimisticState = !isCurrentlyBookmarked;
+
+    setState(() {
+      _optimisticBookmarks[ayahNumber] = optimisticState;
+    });
+
+    try {
+      bool success;
+      if (isCurrentlyBookmarked) {
+        success = await BookmarkService.removeBookmark(surahnum, ayahNumber);
+      } else {
+        final bookmark = Bookmark(
+          surahNumber: surahnum,
+          verseNumber: ayahNumber,
+          surahName: surahname,
+          surahNameArabic: quran.getSurahNameArabic(surahnum),
+          verseText: quran.getVerse(surahnum, ayahNumber),
+          translationText: quran.getVerseTranslation(surahnum, ayahNumber),
+          createdAt: DateTime.now(),
+        );
+        success = await BookmarkService.addBookmark(bookmark);
+      }
+
+      if (!success) {
+        throw Exception('Bookmark operation failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bookmark failed. Please try again.')),
+        );
+        // Revert UI
+        setState(() {
+          _optimisticBookmarks.remove(ayahNumber);
+        });
+      }
+    } finally {
+      if (mounted) {
+        // Clean up optimistic state after operation completes
+        setState(() {
+          _optimisticBookmarks.remove(ayahNumber);
+        });
+      }
     }
-    if (mounted) setState(() {});
   }
 
   @override
@@ -760,7 +821,8 @@ class _TranslatedQuranState extends State<TranslatedQuran> {
       },
       itemBuilder: (context, index) {
         int ayahNumber = filteredAyahs[index];
-        bool isBookmarked = BookmarkService.isBookmarked(surahnum, ayahNumber);
+        bool isBookmarked =
+            _optimisticBookmarks[ayahNumber] ?? BookmarkService.isBookmarked(surahnum, ayahNumber);
 
         return _buildAyahCard(
           context,
@@ -1141,6 +1203,7 @@ class _VerseSearchPageState extends State<VerseSearchPage> {
   String? verseText;
   String? translationText;
   bool isBookmarked = false;
+  bool? _optimisticBookmarkState;
 
   @override
   void initState() {
@@ -1187,30 +1250,56 @@ class _VerseSearchPageState extends State<VerseSearchPage> {
       verseText = quran.getVerse(surahNum, ayahNum);
       translationText = quran.getVerseTranslation(surahNum, ayahNum);
       isBookmarked = BookmarkService.isBookmarked(surahNum, ayahNum);
+      _optimisticBookmarkState = null; // Reset optimistic state on new search
     });
   }
 
   Future<void> _toggleBookmark() async {
     if (selectedSurah == null || selectedAyah == null) return;
-    if (isBookmarked) {
-      await BookmarkService.removeBookmark(selectedSurah!, selectedAyah!);
-    } else {
-      final bookmark = Bookmark(
-        surahNumber: selectedSurah!,
-        verseNumber: selectedAyah!,
-        surahName: quran.getSurahName(selectedSurah!),
-        surahNameArabic: quran.getSurahNameArabic(selectedSurah!),
-        verseText: verseText!,
-        translationText: translationText!,
-        createdAt: DateTime.now(),
-      );
-      await BookmarkService.addBookmark(bookmark);
+
+    final currentBookmarkState = _optimisticBookmarkState ?? isBookmarked;
+    setState(() {
+      _optimisticBookmarkState = !currentBookmarkState;
+    });
+
+    try {
+      bool success;
+      if (currentBookmarkState) {
+        success = await BookmarkService.removeBookmark(selectedSurah!, selectedAyah!);
+      } else {
+        final bookmark = Bookmark(
+          surahNumber: selectedSurah!,
+          verseNumber: selectedAyah!,
+          surahName: quran.getSurahName(selectedSurah!),
+          surahNameArabic: quran.getSurahNameArabic(selectedSurah!),
+          verseText: verseText!,
+          translationText: translationText!,
+          createdAt: DateTime.now(),
+        );
+        success = await BookmarkService.addBookmark(bookmark);
+      }
+      if (!success) {
+        throw Exception('Bookmark operation failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bookmark failed. Please try again.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _optimisticBookmarkState = null;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bool displayBookmarkState = _optimisticBookmarkState ?? isBookmarked;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -1270,7 +1359,7 @@ class _VerseSearchPageState extends State<VerseSearchPage> {
                 ayahNumber: selectedAyah!,
                 arabicText: verseText!,
                 translation: translationText,
-                isBookmarked: isBookmarked,
+                isBookmarked: displayBookmarkState,
                 onBookmark: _toggleBookmark,
               ),
           ],

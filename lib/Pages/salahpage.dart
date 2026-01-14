@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:molvi/Features/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:molvi/Pages/settings.dart'; // Ensure this exists
 
 class SalahPage extends StatefulWidget {
   const SalahPage({super.key});

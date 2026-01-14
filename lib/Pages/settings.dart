@@ -26,12 +26,12 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     _loadFontSettings();
     _loadAppVersion();
+    _loadNotificationSettings();
   }
 
-  Future<void> _loadSettings() async {
+  Future<void> _loadNotificationSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      // ... existing font loading ...
       notificationsEnabled = prefs.getBool('notifications_enabled') ?? false;
     });
   }
@@ -300,11 +300,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: colorScheme.primary),
                       ),
                       title: Text(
-                        AuthService.userDisplayName ?? 'User',
+                        AuthService.userDisplayName,
                         style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
-                        AuthService.userEmail ?? 'No email linked',
+                        AuthService.userEmail,
                         style: GoogleFonts.inter(fontSize: 12),
                       ),
                     ),

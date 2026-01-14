@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:molvi/Ai/aipage.dart';
+import 'package:molvi/Pages/aipage.dart';
 import 'package:molvi/Pages/hadithpage.dart';
 import 'package:molvi/Pages/quranpage.dart';
 import 'package:molvi/Features/randomversepage.dart';
@@ -189,14 +189,6 @@ class _MainNavigatorState extends State<MainNavigator> {
     const ReadingModePage(),
   ];
 
-  final List<String> _pageTitles = [
-    'Hadith Collection',
-    'Holy Quran',
-    'Home', // We won't show this title on the Home screen custom header
-    'AI Islamic Guide',
-    'Reading Mode',
-  ];
-
   final List<IconData> _pageIcons = [
     Icons.book_rounded,
     Icons.menu_book_rounded,
@@ -310,19 +302,6 @@ class _HomeState extends State<Home> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _handleAuthAction(BuildContext context) async {
-    if (AuthService.isSignedIn) {
-      try {
-        await AuthService.signOut();
-      } catch (e) {
-        if (context.mounted) {
-          AuthService.showErrorDialog(
-              context, 'Failed to sign out: ${e.toString()}');
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -419,7 +398,7 @@ class _HomeState extends State<Home> {
               ),
               const SizedBox(height: 4),
               Text(
-                AuthService.userDisplayName ?? 'Believer',
+                AuthService.userDisplayName,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,

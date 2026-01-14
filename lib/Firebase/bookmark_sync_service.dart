@@ -50,7 +50,6 @@ class BookmarkSyncService {
       syncStatus.value = 'Quran sync failed';
       await Future.delayed(const Duration(seconds: 3));
       syncStatus.value = '';
-      print('Error syncing Quran bookmarks: $e');
     } finally {
       isSyncing.value = false;
     }
@@ -87,7 +86,6 @@ class BookmarkSyncService {
       syncStatus.value = 'Hadith sync failed';
       await Future.delayed(const Duration(seconds: 3));
       syncStatus.value = '';
-      print('Error syncing Hadith bookmarks: $e');
     } finally {
       isSyncing.value = false;
     }
@@ -121,7 +119,6 @@ class BookmarkSyncService {
       syncStatus.value = 'Failed to load Quran bookmarks';
       await Future.delayed(const Duration(seconds: 3));
       syncStatus.value = '';
-      print('Error loading Quran bookmarks: $e');
       return null;
     } finally {
       isSyncing.value = false;
@@ -157,7 +154,6 @@ class BookmarkSyncService {
       syncStatus.value = 'Failed to load Hadith bookmarks';
       await Future.delayed(const Duration(seconds: 3));
       syncStatus.value = '';
-      print('Error loading Hadith bookmarks: $e');
       return null;
     } finally {
       isSyncing.value = false;
@@ -187,7 +183,6 @@ class BookmarkSyncService {
       await Future.delayed(const Duration(seconds: 2));
       syncStatus.value = '';
     } catch (e) {
-      print('Error syncing bookmarks after sign in: $e');
       syncStatus.value = 'Bookmark sync error occurred';
       await Future.delayed(const Duration(seconds: 3));
       syncStatus.value = '';
