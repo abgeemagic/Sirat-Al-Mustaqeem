@@ -207,7 +207,7 @@ class _ReadingModePageState extends State<ReadingModePage> {
             Text(
               '$surahName ($surahNameArabic)',
               style: GoogleFonts.inter(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
               ),
@@ -215,7 +215,7 @@ class _ReadingModePageState extends State<ReadingModePage> {
             Text(
               'Juz ${quran.getJuzNumber(_currentSurah, _currentAyah)} • Ayah $_currentAyah',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 14,
                 color: colorScheme.primary,
               ),
             ),

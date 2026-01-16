@@ -117,6 +117,31 @@ class _SalahPageState extends State<SalahPage> {
     }
   }
 
+  Future<void> _testNotification() async {
+    // Check permission
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+
+    // Schedule for 10 seconds later
+    final now = DateTime.now();
+    final testTime = now.add(const Duration(seconds: 10));
+
+    await NotificationService.schedulePrayer(
+      999, // Unique ID for testing
+      'Test Prayer',
+      testTime,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Test notification scheduled in 10 seconds! Minimize the app.')),
+      );
+    }
+  }
+
   void _showPermissionDialog() {
     showDialog(
       context: context,
@@ -252,6 +277,10 @@ class _SalahPageState extends State<SalahPage> {
         backgroundColor: colorScheme.surface,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active, color: Colors.orange),
+            onPressed: _testNotification,
+          ),
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: colorScheme.primary),
             onPressed: _getCurrentLocation,

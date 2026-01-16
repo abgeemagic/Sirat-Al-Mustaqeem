@@ -61,8 +61,7 @@ class NotificationService {
           channelDescription: 'Notifications for prayer times',
           importance: Importance.max,
           priority: Priority.high,
-          sound: RawResourceAndroidNotificationSound(
-              'adhan'), // Optional: Add adhan.mp3 to android/app/src/main/res/raw
+          sound: null,
         ),
         iOS: DarwinNotificationDetails(sound: 'adhan.aiff'),
       ),
