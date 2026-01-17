@@ -7,53 +7,56 @@ ThemeData lighttheme = ThemeData(
   brightness: Brightness.light,
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF1B5E20),
+    primary: Color(0xFF1B5E20), // Keep deep green for buttons/active states
     onPrimary: Colors.white,
-    primaryContainer: Color(0xFFE8F5E8),
-    onPrimaryContainer: Color(0xFF1B5E20),
+    primaryContainer: Color(0xFFE8F5E8), // Very light green for backgrounds
+    onPrimaryContainer:
+        Color(0xFF003300), // Darker text on containers for contrast
     secondary: Color(0xFF2E7D32),
     onSecondary: Colors.white,
     secondaryContainer: Color(0xFFF1F8E9),
     onSecondaryContainer: Color(0xFF1B5E20),
     tertiary: Color(0xFF4CAF50),
     onTertiary: Colors.white,
-    tertiaryContainer: Color(0xFFE8F5E8),
-    onTertiaryContainer: Color(0xFF1B5E20),
-    error: Color(0xFFD32F2F),
+    tertiaryContainer: Color(0xFFC8E6C9),
+    onTertiaryContainer: Color(0xFF003300),
+    error: Color(0xFFB00020),
     onError: Colors.white,
-    errorContainer: Color(0xFFFFEBEE),
-    onErrorContainer: Color(0xFFB71C1C),
-    surface: Color(0xFFFAFAFA),
-    onSurface: Color(0xFF1A1A1A),
-    surfaceContainerHighest: Color(0xFFF0F0F0),
-    onSurfaceVariant: Color(0xFF616161),
-    outline: Color(0xFFE0E0E0),
-    outlineVariant: Color(0xFFF0F0F0),
+    errorContainer: Color(0xFFFFDAD6),
+    onErrorContainer: Color(0xFF410002),
+    surface: Color(0xFFFAFAFA), // Clean off-white background
+    onSurface: Color(0xFF1A1A1A), // Standard Black text
+    surfaceContainerHighest: Color(0xFFF0F0F0), // For inputs/cards
+    onSurfaceVariant: Color(0xFF44474E), // Softer grey for subtitles
+    outline: Color(0xFF74777F),
+    outlineVariant: Color(0xFFC4C7C5),
     shadow: Colors.black12,
     scrim: Colors.black54,
-    inverseSurface: Color(0xFF2A2A2A),
-    onInverseSurface: Color(0xFFFAFAFA),
+    inverseSurface: Color(0xFF303030),
+    onInverseSurface: Color(0xFFF2F2F2),
     inversePrimary: Color(0xFF81C784),
     surfaceTint: Color(0xFF1B5E20),
   ),
   textTheme: TextTheme(
+    // FIXED: Headlines are now Dark Grey (Standard Material 3)
+    // This removes the "heavy" feeling of colored text
     headlineLarge: GoogleFonts.inter(
       fontSize: 32,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.5,
-      color: const Color(0xFF1B5E20),
+      color: const Color(0xFF1A1A1A),
     ),
     headlineMedium: GoogleFonts.inter(
       fontSize: 28,
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
-      color: const Color(0xFF1B5E20),
+      color: const Color(0xFF1A1A1A),
     ),
     headlineSmall: GoogleFonts.inter(
       fontSize: 24,
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
-      color: const Color(0xFF1B5E20),
+      color: const Color(0xFF1A1A1A),
     ),
     titleLarge: GoogleFonts.inter(
       fontSize: 22,
@@ -95,32 +98,34 @@ ThemeData lighttheme = ThemeData(
   appBarTheme: AppBarTheme(
     elevation: 0,
     scrolledUnderElevation: 2,
-    backgroundColor: const Color(0xFF1B5E20),
-    foregroundColor: Colors.white,
-    surfaceTintColor: const Color(0xFF1B5E20),
+    // Modern approach: Use Surface color for AppBar with Colored Text
+    // This feels lighter and cleaner than a solid block of green
+    backgroundColor: const Color(0xFFFAFAFA),
+    foregroundColor: const Color(0xFF1B5E20), // Green Icons/Text
+    surfaceTintColor: const Color(0xFFFAFAFA),
     centerTitle: true,
     titleTextStyle: GoogleFonts.inter(
       fontSize: 20,
-      fontWeight: FontWeight.w600,
-      color: Colors.white,
+      fontWeight: FontWeight.w700, // Slightly bolder to stand out
+      color: const Color(0xFF1B5E20), // Primary Green Title
       letterSpacing: 0,
     ),
     iconTheme: const IconThemeData(
-      color: Colors.white,
+      color: Color(0xFF1B5E20),
       size: 24,
     ),
   ),
   cardTheme: const CardThemeData(
-    elevation: 2,
-    shadowColor: Colors.black12,
+    elevation: 0, // Flat modern look
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(16)),
+      side: BorderSide(color: Color(0xFFE0E0E0), width: 1), // Subtle border
     ),
     color: Colors.white,
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      elevation: 2,
+      elevation: 0, // Flat button
       backgroundColor: const Color(0xFF1B5E20),
       foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -135,16 +140,17 @@ ThemeData lighttheme = ThemeData(
     ),
   ),
   bottomAppBarTheme: const BottomAppBarTheme(
-    color: Color(0xFFFAFAFA),
-    elevation: 8,
+    color: Colors.white,
+    elevation: 3,
+    shadowColor: Colors.black12,
   ),
   iconTheme: const IconThemeData(
     color: Color(0xFF424242),
     size: 24,
   ),
   drawerTheme: const DrawerThemeData(
-    backgroundColor: Color(0xFFFAFAFA),
-    surfaceTintColor: Color(0xFFFAFAFA),
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.white,
   ),
 );
 

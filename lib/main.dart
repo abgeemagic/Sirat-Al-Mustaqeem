@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:molvi/Pages/aipage.dart';
 import 'package:molvi/Pages/hadithpage.dart';
+import 'package:molvi/Pages/qibla_compass_page.dart';
 import 'package:molvi/Pages/quranpage.dart';
 import 'package:molvi/Features/randomversepage.dart';
 import 'package:molvi/Pages/salahpage.dart';
@@ -10,6 +11,7 @@ import 'package:molvi/Pages/settings.dart';
 import 'package:molvi/Features/themes.dart' as theme;
 import 'package:molvi/Features/reading_mode_page.dart';
 import 'package:molvi/Firebase/auth_service.dart';
+import 'package:molvi/Widgets/prayer_tracker_card.dart';
 import 'Firebase/firebase_options.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:molvi/Features/notification_service.dart';
@@ -168,9 +170,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------
-// IMPROVED MAIN NAVIGATOR
-// ---------------------------------------------------------
 class MainNavigator extends StatefulWidget {
   const MainNavigator({super.key});
   @override
@@ -321,7 +320,9 @@ class _HomeState extends State<Home> {
 
               // 2. Main Banner (Logo + Slogan)
               _buildMainBanner(context),
+              const SizedBox(height: 24),
 
+              const PrayerTrackerCard(),
               const SizedBox(height: 24),
 
               // 3. Quick Actions Grid
@@ -365,15 +366,32 @@ class _HomeState extends State<Home> {
               ),
               const SizedBox(height: 16),
               // Full width card
-              _buildActionCard(
-                context,
-                icon: Icons.schedule_rounded,
-                title: 'Prayer Times',
-                subtitle: 'Check accurate Salah times',
-                color: Colors.greenAccent,
-                isHorizontal: true,
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const SalahPage())),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      icon: Icons.schedule_rounded,
+                      title: 'Prayer Timings',
+                      color: Colors.greenAccent,
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const SalahPage())),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      icon: Icons.explore_rounded, // Compass Icon
+                      title: 'Qibla Finder',
+                      color: Colors.purpleAccent, // Fun distinct color
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const QiblaCompassPage())),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
